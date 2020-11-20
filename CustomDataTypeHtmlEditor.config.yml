@@ -1,0 +1,26 @@
+plugin:
+  name: custom-data-type-html-editor
+  version: 1.0
+  url: https://github.com/programmfabrik/easydb-custom-data-type-html-editor
+  displayname:
+    de-DE: HTML Editor
+    en-US: HTML Editor
+  info:
+    de-DE: This custom data type allows having custom HTML content
+    en-US: This custom data type allows having custom HTML content
+  server:
+    api-version:
+      require: 1
+  webfrontend:
+    url: custom-data-type-html-editor.js
+    css: custom-data-type-html-editor.css
+    l10n: l10n/
+
+base_config:
+  - name: html_editor
+    group: css
+    parameters:
+      custom_css_url:
+        regex: "^https?://[^/]+?([a-z0-9]|/.*)$"
+        type: text
+        position: 1
