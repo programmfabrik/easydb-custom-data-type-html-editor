@@ -14,6 +14,7 @@ INSTALL_FILES = \
 	$(WEB)/l10n/it-IT.json \
 	$(CSS) \
 	$(JS) \
+	$(JS_LIB) \
 	CustomDataTypeHtmlEditor.config.yml
 
 COFFEE_FILES = src/webfrontend/CustomDataTypeHtmlEditor.coffee
@@ -26,9 +27,8 @@ include easydb-library/tools/base-plugins.make
 
 build: code $(L10N)
 
-code: $(JS) css
+code: $(JS) css js_lib
 
 clean: clean-base
 
 wipe: wipe-base
-

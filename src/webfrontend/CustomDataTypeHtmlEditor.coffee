@@ -30,24 +30,40 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 
 	renderEditorInput: (data) ->
 		initData = @__initData(data)
-		# TODO: CHANGE IT TO A PROPER WYSIWYG EDITOR
+
+		input = new CUI.Input(name: "value")
+		input.hide(true)
+
 		form = new CUI.Form
 			data: initData
-			onDataChanged: ->
-				CUI.Events.trigger
-					node: form
-					type: "editor-changed"
-			fields: [
-				type: CUI.Input
-				name: "value"
-			]
+			onRender: ->
+				CustomDataTypeHtmlEditor.loadLibraryPromise.done(->
+					CUI.dom.waitForDOMInsert(node: form).done( ->
+						inputElement = input.getElement()
+						inputElement.value = initData.value
+						tinymce.init(
+							target: inputElement
+							setup: ((inputText) ->
+								inputText.on('change', ->
+									initData.value = inputText.getContent()
+
+									CUI.Events.trigger
+										node: form
+										type: "editor-changed"
+								)
+								input.show(true)
+							)
+						)
+					)
+				)
+			fields: [input]
+
 		return form
 
-	# TODO: INLINE? POPOVER?
 	renderDetailOutput: (data, _, opts) ->
 		initData = @__initData(data)
 
-		content = CUI.dom.$element("iframe", "ez5-custom-data-type-html-editor-iframe")
+		iframe = CUI.dom.$element("iframe", "ez5-custom-data-type-html-editor-iframe")
 
 		html = CUI.dom.element("html")
 		head = CUI.dom.element("head")
@@ -57,7 +73,7 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 		CUI.dom.append(html, body)
 		CUI.dom.setStyle(body, "margin": "0px") # Remove the default margin of the HTML.
 
-		CUI.dom.append(body, initData.value)
+		CUI.dom.append(body, CUI.dom.htmlToNodes(initData.value))
 		customCssURL = ez5.session.config.base.system.html_editor?.custom_css_url
 		if customCssURL
 			linkElement = CUI.dom.element("link",
@@ -67,15 +83,24 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 			)
 			CUI.dom.append(head, linkElement)
 
-		content.src = 'data:text/html;charset=utf-8,' + encodeURI(html.outerHTML);
-		return content
+		iframe.addEventListener("load", =>
+			iframeContent = iframe.contentDocument.documentElement
+			iframeContent.innerHTML = html.innerHTML
+			iframe.style.height = "#{iframeContent.scrollHeight}px"
+		)
+
+		return iframe
 
 	getSaveData: (data, save_data) ->
 		data = data[@name()]
 		if CUI.util.isEmpty(data)
 			return save_data[@name()] = null
 
-		return save_data[@name()] = value: data.value
+		save_data[@name()] =
+			value: data.value
+			_fulltext:
+				text: data.value
+		return save_data[@name()]
 
 	__initData: (data) ->
 		if not data[@name()]
@@ -85,9 +110,10 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 			initData = data[@name()]
 		initData
 
-	# TODO: ADD FULLTEXT TO SEARCH.
-
 	isEmpty: (data) ->
 		return CUI.util.isEmpty(data[@name()]?.value)
 
 CustomDataType.register(CustomDataTypeHtmlEditor)
+
+CUI.ready =>
+	CustomDataTypeHtmlEditor.loadLibraryPromise = CUI.loadScript("https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.5.1/tinymce.min.js")

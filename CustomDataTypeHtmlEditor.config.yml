@@ -14,6 +14,7 @@ plugin:
   webfrontend:
     url: custom-data-type-html-editor.js
     css: custom-data-type-html-editor.css
+    lib: custom-data-type-html-editor-lib.js
     l10n: l10n/
 
 base_config:
