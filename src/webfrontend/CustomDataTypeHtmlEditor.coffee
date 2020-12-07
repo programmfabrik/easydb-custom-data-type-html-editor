@@ -34,6 +34,7 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 		input = new CUI.Input(name: "value")
 		input.hide(true)
 
+		inputEditor = null
 		form = new CUI.Form
 			data: initData
 			onRender: ->
@@ -44,6 +45,7 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 						tinymce.init(
 							target: inputElement
 							setup: ((inputText) ->
+								inputEditor = inputText
 								inputText.on('change', ->
 									initData.value = inputText.getContent()
 
@@ -56,11 +58,72 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 						)
 					)
 				)
-			fields: [input]
+			fields: [
+				input
+			,
+				type: CUI.DataFieldProxy
+				name: "editing_placeholder"
+				hidden: true
+				element: ->
+					label = new CUI.Label
+						text: $$("custom.data.type.html-editor.editor.editing-placeholder")
+						multiline: true
+						centered: true
+						appearance: "secondary"
+					return label
+			,
+				type: CUI.DataFieldProxy
+				element: =>
+					button = new LocaButton
+						loca_key: "custom.data.type.html-editor.editor.window.open-button"
+						appearance: "link"
+						size: "mini"
+						onClick: =>
+							initData._editorWindowOpen = true # Avoid saving data when the window is open.
+							button.hide()
+							placeholder = form.getFieldsByName("editing_placeholder")[0]
+							placeholder.show(true)
+							input.hide(true)
+
+							features = "toolbar=no,status=no,menubar=no,scrollbars=yes,width=800,height=800"
+							win = window.open("", "_blank", features)
+
+							newInputElement = CUI.dom.element("input")
+							newInputElement.value = initData.value
+							win.document.title = $$("custom.data.type.html-editor.editor.window.title")
+							win.document.body.appendChild(newInputElement)
+
+							inputEditorWindow = null
+							tinymce.init(
+								target: newInputElement
+								height: "100%"
+								setup: ((inputText) ->
+									inputEditorWindow = inputText
+								)
+							)
+
+							win.addEventListener('beforeunload', ->
+								placeholder.hide(true)
+								input.show(true)
+								button.show()
+
+								initData.value = inputEditorWindow.getContent()
+								inputEditor.setContent(initData.value)
+
+								delete initData._editorWindowOpen
+
+								CUI.Events.trigger
+									node: form
+									type: "editor-changed"
+							)
+
+							return
+					return button
+			]
 
 		return form
 
-	renderDetailOutput: (data, _, opts) ->
+	renderDetailOutput: (data, top_level_data, opts) ->
 		initData = @__initData(data)
 
 		iframe = CUI.dom.$element("iframe", "ez5-custom-data-type-html-editor-iframe")
@@ -86,15 +149,54 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 		iframe.addEventListener("load", =>
 			iframeContent = iframe.contentDocument.documentElement
 			iframeContent.innerHTML = html.innerHTML
-			iframe.style.height = "#{iframeContent.scrollHeight}px"
 		)
 
-		return iframe
+		label = new CUI.Label
+			text: $$("custom.data.type.html-editor.detail.iframe-open-label")
+			multiline: true
+			centered: true
+			appearance: "secondary"
+		CUI.dom.hideElement(label)
+
+		openButton = new LocaButton
+			loca_key: "custom.data.type.html-editor.detail.window.open-button"
+			appearance: "link"
+			size: "mini"
+			onClick: =>
+				CUI.dom.hideElement(openButton)
+				CUI.dom.hideElement(iframe)
+				CUI.dom.showElement(label)
+
+				features = "toolbar=no,status=no,menubar=no,scrollbars=yes,width=800,height=800"
+				win = window.open("", "_blank", features)
+
+				newInputElement = CUI.dom.element("input")
+				newInputElement.value = initData.value
+				win.document.title = $$("custom.data.type.html-editor.detail.window.title", top_level_data)
+				win.document.body.innerHTML = initData.value
+				win.addEventListener('beforeunload', ->
+					CUI.dom.hideElement(label)
+					CUI.dom.showElement(openButton)
+					CUI.dom.showElement(iframe)
+				)
+				return
+
+		verticalLayout = new CUI.VerticalLayout
+			top:
+				content: label
+			center:
+				content: iframe
+			bottom:
+				content: openButton
+		return verticalLayout
 
 	getSaveData: (data, save_data) ->
 		data = data[@name()]
 		if CUI.util.isEmpty(data)
 			return save_data[@name()] = null
+
+		if data._editorWindowOpen
+			throw new InvalidSaveDataException(text: $$("custom.data.type.html-editor.editor.window.alert.is-open"))
 
 		save_data[@name()] =
 			value: data.value
