@@ -27,7 +27,7 @@ include easydb-library/tools/base-plugins.make
 
 build: code $(L10N)
 
-code: $(JS) css js_lib
+code: $(JS) css
 
 clean: clean-base
 
