@@ -31,156 +31,162 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 	renderEditorInput: (data) ->
 		initData = @__initData(data)
 
+		customCSSURL = ez5.session.config.base.system.html_editor?.custom_css_url
 		editorToolbar = "undo redo | styleselect | bold italic forecolor backcolor | alignleft aligncenter alignright alignjustify | outdent indent"
-
-		input = new CUI.Input(name: "value")
-		input.hide(true)
-
 		inputEditor = null
-		form = new CUI.Form
-			data: initData
-			onRender: ->
-				CustomDataTypeHtmlEditor.loadLibraryPromise.done(->
-					CUI.dom.waitForDOMInsert(node: form).done( ->
-						inputElement = input.getElement()
-						inputElement.value = initData.value
-						tinymce.init(
-							menubar:false
-							toolbar: editorToolbar
-							target: inputElement
-							setup: ((inputText) ->
-								inputEditor = inputText
-								inputText.on('change', ->
-									initData.value = inputText.getContent()
 
-									CUI.Events.trigger
-										node: form
-										type: "editor-changed"
-								)
-								input.show(true)
-							)
+		inputElement = CUI.dom.element("input")
+		inputElement.value = initData.value
+		CUI.dom.addClass(inputElement, "ez5-custom-data-type-html-editor-fixed-height")
+		CUI.dom.setStyle(inputElement, visibility: "hidden")
+
+		CustomDataTypeHtmlEditor.loadLibraryPromise.done(->
+			CUI.dom.waitForDOMInsert(node: inputElement).done(->
+				tinymce.init(
+					menubar:false
+					toolbar: editorToolbar
+					toolbar_mode: 'sliding'
+					target: inputElement
+					content_css: customCSSURL
+					setup: ((inputText) ->
+						CUI.dom.setStyle(inputElement, visibility: "")
+						inputEditor = inputText
+						inputText.on('change', ->
+							initData.value = inputText.getContent()
+
+							CUI.Events.trigger
+								node: editorContent
+								type: "editor-changed"
 						)
 					)
 				)
-			fields: [
-				input
-			,
-				type: CUI.DataFieldProxy
-				name: "editing_placeholder"
-				hidden: true
-				element: ->
-					label = new CUI.Label
-						text: $$("custom.data.type.html-editor.editor.editing-placeholder")
-						multiline: true
-						centered: true
-						appearance: "secondary"
-					return label
-			,
-				type: CUI.DataFieldProxy
-				element: =>
-					button = new LocaButton
-						loca_key: "custom.data.type.html-editor.editor.window.open-button"
-						appearance: "link"
-						size: "mini"
-						onClick: =>
-							initData._editorWindowOpen = true # Avoid saving data when the window is open.
-							saveChanges = true
+			)
+		)
 
-							button.hide()
-							placeholder = form.getFieldsByName("editing_placeholder")[0]
-							placeholder.show(true)
-							input.hide(true)
+		placeholderLabel = new CUI.Label
+			text: $$("custom.data.type.html-editor.editor.editing-placeholder")
+			class: "ez5-custom-data-type-html-editor-fixed-height"
+			multiline: true
+			centered: true
+			appearance: "secondary"
+		CUI.dom.hideElement(placeholderLabel)
 
-							features = "toolbar=no,status=no,menubar=no,scrollbars=yes,width=#{window.innerWidth},height=#{window.innerHeight}"
-							win = window.open("", "_blank", features)
-							win.document.title = $$("custom.data.type.html-editor.editor.window.title")
+		openEditorButton = new LocaButton
+			loca_key: "custom.data.type.html-editor.editor.window.open-button"
+			appearance: "link"
+			size: "mini"
+			onClick: =>
+				saveChanges = false
+				manualClose = false
 
-							ez5CSSLinkElement = CUI.dom.element("link",
-								href: document.location.origin + ez5.cssLoader.getActiveCSS().url
-								rel: "stylesheet"
-								type: "text/css"
-							)
-							win.document.head.appendChild(ez5CSSLinkElement)
+				initData._editorWindowOpen = true # Avoid saving data when the window is open.
+				openEditorButton.disable()
+				CUI.dom.hideElement(inputEditor.getContainer())
+				CUI.dom.showElement(placeholderLabel)
 
-							plugin = ez5.pluginManager.getPlugin("custom-data-type-html-editor")
-							pluginCSSLinkElement = CUI.dom.element("link",
-								href: plugin.getBareBaseURL() + plugin.getWebfrontend().css
-								rel: "stylesheet"
-								type: "text/css"
-							)
-							win.document.head.appendChild(pluginCSSLinkElement)
+				features = "toolbar=no,status=no,menubar=no,scrollbars=yes,width=#{window.innerWidth},height=#{window.innerHeight}"
+				win = window.open("", "_blank", features)
+				win.document.title = $$("custom.data.type.html-editor.editor.window.title")
 
-							customLinkElement = @__getCustomCSSElement()
-							if customLinkElement
-								win.document.head.appendChild(customLinkElement)
+				# Add easydb css
+				ez5CSSLinkElement = CUI.dom.element("link",
+					href: document.location.origin + ez5.cssLoader.getActiveCSS().url
+					rel: "stylesheet"
+					type: "text/css"
+				)
+				win.document.head.appendChild(ez5CSSLinkElement)
 
-							buttonbar = new CUI.Buttonbar
-								buttons:[
-									text: $$("custom.data.type.html-editor.editor.window.button.discard")
-									onClick: =>
-										confirmationChoice = new CUI.ConfirmationChoice
-											text: $$("custom.data.type.html-editor.editor.window.cancel-confirmation")
-											title: $$("custom.data.type.html-editor.editor.window.button.discard")
-											choices: [
-												text: $$("base.cancel")
-											,
-												text: $$("base.ok")
-												onClick: =>
-													saveChanges = false
-													win.close()
-											]
-										confirmationChoice.open()
-										CUI.dom.append(win.document.body, confirmationChoice.getLayerRoot())
-										return
-								,
-									text: $$("custom.data.type.html-editor.editor.window.button.apply")
-									onClick: =>
-										win.close()
-								]
+				# Add plugin css
+				plugin = ez5.pluginManager.getPlugin("custom-data-type-html-editor")
+				pluginCSSLinkElement = CUI.dom.element("link",
+					href: plugin.getBareBaseURL() + plugin.getWebfrontend().css
+					rel: "stylesheet"
+					type: "text/css"
+				)
+				win.document.head.appendChild(pluginCSSLinkElement)
 
-							newInputElement = CUI.dom.element("input")
-							newInputElement.value = initData.value
+				windowInputElement = CUI.dom.element("input")
+				windowInputElement.value = initData.value
 
-							verticalLayout = new CUI.VerticalLayout
-								class: "ez5-custom-data-type-html-editor-window"
-								top: content: buttonbar
-								center: content: newInputElement
+				verticalLayout = new CUI.VerticalLayout
+					class: "ez5-custom-data-type-html-editor-window"
+					center:
+						content: windowInputElement
+					bottom:
+						content: new CUI.HorizontalLayout
+							right:
+								content: new CUI.Buttonbar
+									buttons:[
+										text: $$("custom.data.type.html-editor.editor.window.button.discard")
+										onClick: =>
+											confirmationChoice = new CUI.ConfirmationChoice
+												text: $$("custom.data.type.html-editor.editor.window.cancel-confirmation")
+												title: $$("custom.data.type.html-editor.editor.window.button.discard")
+												choices: [
+													text: $$("base.cancel")
+												,
+													text: $$("base.ok")
+													onClick: =>
+														manualClose = true
+														win.close()
+												]
+											confirmationChoice.open()
+											CUI.dom.append(win.document.body, confirmationChoice.getLayerRoot())
+											return
+									,
+										primary: true
+										text: $$("custom.data.type.html-editor.editor.window.button.apply")
+										onClick: =>
+											saveChanges = true
+											manualClose = true
+											win.close()
+									]
 
-							win.document.body.appendChild(verticalLayout.DOM)
+				win.document.body.appendChild(verticalLayout.DOM)
 
-							inputEditorWindow = null
-							tinymce.init(
-								menubar:false
-								toolbar: editorToolbar
-								target: newInputElement
-								height: "100%"
-								setup: ((inputText) ->
-									inputEditorWindow = inputText
-								)
-							)
+				windowInputEditor = null
+				CustomDataTypeHtmlEditor.loadLibraryPromise.done(->
+					tinymce.init(
+						menubar:false
+						toolbar: editorToolbar
+						target: windowInputElement
+						toolbar_mode: 'sliding'
+						height: "100%"
+						content_css: customCSSURL
+						setup: ((inputText) ->
+							windowInputEditor = inputText
+						)
+					)
+				)
 
-							win.addEventListener('beforeunload', ->
-								placeholder.hide(true)
-								input.show(true)
-								button.show()
+				win.addEventListener('beforeunload', (e) ->
+					if not manualClose
+						return e.returnValue = null
+					return
+				)
 
-								delete initData._editorWindowOpen
+				win.addEventListener('unload', ->
+					openEditorButton.enable()
+					CUI.dom.hideElement(placeholderLabel)
+					CUI.dom.showElement(inputEditor.getContainer())
+					delete initData._editorWindowOpen
 
-								if saveChanges
-									initData.value = inputEditorWindow.getContent()
-									inputEditor.setContent(initData.value)
+					if saveChanges
+						initData.value = windowInputEditor.getContent()
+						inputEditor.setContent(initData.value)
 
-									CUI.Events.trigger
-										node: form
-										type: "editor-changed"
-								return
-							)
+						CUI.Events.trigger
+							node: editorContent
+							type: "editor-changed"
+					return
+				)
 
-							return
-					return button
-			]
+		editorContent = new CUI.VerticalLayout
+			top: content: placeholderLabel
+			center: content: inputElement
+			bottom: content: openEditorButton
 
-		return form
+		return editorContent
 
 	__getCustomCSSElement: ->
 		customCssURL = ez5.session.config.base.system.html_editor?.custom_css_url
@@ -221,9 +227,9 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 			appearance: "link"
 			size: "mini"
 			onClick: =>
-				CUI.dom.hideElement(openButton)
+				openButton.disable()
 
-				features = "toolbar=no,status=no,menubar=no,scrollbars=yes,width=800,height=800"
+				features = "toolbar=no,status=no,menubar=no,scrollbars=yes,width=#{window.innerWidth},height=#{window.innerHeight}"
 				win = window.open("", "_blank", features)
 
 				newInputElement = CUI.dom.element("input")
@@ -231,16 +237,16 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 				win.document.title = $$("custom.data.type.html-editor.detail.window.title", top_level_data)
 				win.document.body.innerHTML = initData.value
 				win.addEventListener('beforeunload', ->
-					CUI.dom.showElement(openButton)
+					openButton.enable()
 				)
 				return
 
-		verticalLayout = new CUI.VerticalLayout
+		detailContent = new CUI.VerticalLayout
 			center:
 				content: iframe
 			bottom:
 				content: openButton
-		return verticalLayout
+		return detailContent
 
 	getSaveData: (data, save_data) ->
 		data = data[@name()]
