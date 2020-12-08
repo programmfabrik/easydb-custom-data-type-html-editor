@@ -31,6 +31,8 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 	renderEditorInput: (data) ->
 		initData = @__initData(data)
 
+		editorToolbar = "undo redo | styleselect | bold italic forecolor backcolor | alignleft aligncenter alignright alignjustify | outdent indent"
+
 		input = new CUI.Input(name: "value")
 		input.hide(true)
 
@@ -43,6 +45,8 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 						inputElement = input.getElement()
 						inputElement.value = initData.value
 						tinymce.init(
+							menubar:false
+							toolbar: editorToolbar
 							target: inputElement
 							setup: ((inputText) ->
 								inputEditor = inputText
@@ -88,6 +92,12 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 							features = "toolbar=no,status=no,menubar=no,scrollbars=yes,width=800,height=800"
 							win = window.open("", "_blank", features)
 
+							# TODO: Add the discard/apply changes buttons. Add a confirmation before closing it.
+							#		custom.data.type.html-editor.editor.window.button.apply
+							#		custom.data.type.html-editor.editor.window.button.cancel
+							#		custom.data.type.html-editor.editor.window.button.discard
+							#		custom.data.type.html-editor.editor.window.close-confirmation
+
 							newInputElement = CUI.dom.element("input")
 							newInputElement.value = initData.value
 							win.document.title = $$("custom.data.type.html-editor.editor.window.title")
@@ -95,6 +105,8 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 
 							inputEditorWindow = null
 							tinymce.init(
+								menubar:false
+								toolbar: editorToolbar
 								target: newInputElement
 								height: "100%"
 								setup: ((inputText) ->
@@ -151,21 +163,12 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 			iframeContent.innerHTML = html.innerHTML
 		)
 
-		label = new CUI.Label
-			text: $$("custom.data.type.html-editor.detail.iframe-open-label")
-			multiline: true
-			centered: true
-			appearance: "secondary"
-		CUI.dom.hideElement(label)
-
 		openButton = new LocaButton
 			loca_key: "custom.data.type.html-editor.detail.window.open-button"
 			appearance: "link"
 			size: "mini"
 			onClick: =>
 				CUI.dom.hideElement(openButton)
-				CUI.dom.hideElement(iframe)
-				CUI.dom.showElement(label)
 
 				features = "toolbar=no,status=no,menubar=no,scrollbars=yes,width=800,height=800"
 				win = window.open("", "_blank", features)
@@ -175,15 +178,11 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 				win.document.title = $$("custom.data.type.html-editor.detail.window.title", top_level_data)
 				win.document.body.innerHTML = initData.value
 				win.addEventListener('beforeunload', ->
-					CUI.dom.hideElement(label)
 					CUI.dom.showElement(openButton)
-					CUI.dom.showElement(iframe)
 				)
 				return
 
 		verticalLayout = new CUI.VerticalLayout
-			top:
-				content: label
 			center:
 				content: iframe
 			bottom:
@@ -198,10 +197,17 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 		if data._editorWindowOpen
 			throw new InvalidSaveDataException(text: $$("custom.data.type.html-editor.editor.window.alert.is-open"))
 
+		fulltext = []
+		for _, value of CUI.dom.htmlToNodes(data.value)
+			text = value.textContent
+			if not text or /^(\s|\n)$/.test(text)
+				continue
+			fulltext.push(value.textContent.trim())
+
 		save_data[@name()] =
 			value: data.value
 			_fulltext:
-				text: data.value
+				text: fulltext.join(" ")
 		return save_data[@name()]
 
 	__initData: (data) ->
