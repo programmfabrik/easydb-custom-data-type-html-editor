@@ -84,24 +84,69 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 						size: "mini"
 						onClick: =>
 							initData._editorWindowOpen = true # Avoid saving data when the window is open.
+							saveChanges = true
+
 							button.hide()
 							placeholder = form.getFieldsByName("editing_placeholder")[0]
 							placeholder.show(true)
 							input.hide(true)
 
-							features = "toolbar=no,status=no,menubar=no,scrollbars=yes,width=800,height=800"
+							features = "toolbar=no,status=no,menubar=no,scrollbars=yes,width=#{window.innerWidth},height=#{window.innerHeight}"
 							win = window.open("", "_blank", features)
+							win.document.title = $$("custom.data.type.html-editor.editor.window.title")
 
-							# TODO: Add the discard/apply changes buttons. Add a confirmation before closing it.
-							#		custom.data.type.html-editor.editor.window.button.apply
-							#		custom.data.type.html-editor.editor.window.button.cancel
-							#		custom.data.type.html-editor.editor.window.button.discard
-							#		custom.data.type.html-editor.editor.window.close-confirmation
+							ez5CSSLinkElement = CUI.dom.element("link",
+								href: document.location.origin + ez5.cssLoader.getActiveCSS().url
+								rel: "stylesheet"
+								type: "text/css"
+							)
+							win.document.head.appendChild(ez5CSSLinkElement)
+
+							plugin = ez5.pluginManager.getPlugin("custom-data-type-html-editor")
+							pluginCSSLinkElement = CUI.dom.element("link",
+								href: plugin.getBareBaseURL() + plugin.getWebfrontend().css
+								rel: "stylesheet"
+								type: "text/css"
+							)
+							win.document.head.appendChild(pluginCSSLinkElement)
+
+							customLinkElement = @__getCustomCSSElement()
+							if customLinkElement
+								win.document.head.appendChild(customLinkElement)
+
+							buttonbar = new CUI.Buttonbar
+								buttons:[
+									text: $$("custom.data.type.html-editor.editor.window.button.discard")
+									onClick: =>
+										confirmationChoice = new CUI.ConfirmationChoice
+											text: $$("custom.data.type.html-editor.editor.window.cancel-confirmation")
+											title: $$("custom.data.type.html-editor.editor.window.button.discard")
+											choices: [
+												text: $$("base.cancel")
+											,
+												text: $$("base.ok")
+												onClick: =>
+													saveChanges = false
+													win.close()
+											]
+										confirmationChoice.open()
+										CUI.dom.append(win.document.body, confirmationChoice.getLayerRoot())
+										return
+								,
+									text: $$("custom.data.type.html-editor.editor.window.button.apply")
+									onClick: =>
+										win.close()
+								]
 
 							newInputElement = CUI.dom.element("input")
 							newInputElement.value = initData.value
-							win.document.title = $$("custom.data.type.html-editor.editor.window.title")
-							win.document.body.appendChild(newInputElement)
+
+							verticalLayout = new CUI.VerticalLayout
+								class: "ez5-custom-data-type-html-editor-window"
+								top: content: buttonbar
+								center: content: newInputElement
+
+							win.document.body.appendChild(verticalLayout.DOM)
 
 							inputEditorWindow = null
 							tinymce.init(
@@ -119,14 +164,16 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 								input.show(true)
 								button.show()
 
-								initData.value = inputEditorWindow.getContent()
-								inputEditor.setContent(initData.value)
-
 								delete initData._editorWindowOpen
 
-								CUI.Events.trigger
-									node: form
-									type: "editor-changed"
+								if saveChanges
+									initData.value = inputEditorWindow.getContent()
+									inputEditor.setContent(initData.value)
+
+									CUI.Events.trigger
+										node: form
+										type: "editor-changed"
+								return
 							)
 
 							return
@@ -134,6 +181,17 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 			]
 
 		return form
+
+	__getCustomCSSElement: ->
+		customCssURL = ez5.session.config.base.system.html_editor?.custom_css_url
+		if not customCssURL
+			return
+		linkElement = CUI.dom.element("link",
+			href: customCssURL
+			rel: "stylesheet"
+			type: "text/css"
+		)
+		return linkElement
 
 	renderDetailOutput: (data, top_level_data, opts) ->
 		initData = @__initData(data)
@@ -149,14 +207,9 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 		CUI.dom.setStyle(body, "margin": "0px") # Remove the default margin of the HTML.
 
 		CUI.dom.append(body, CUI.dom.htmlToNodes(initData.value))
-		customCssURL = ez5.session.config.base.system.html_editor?.custom_css_url
-		if customCssURL
-			linkElement = CUI.dom.element("link",
-				href: customCssURL
-				rel: "stylesheet"
-				type: "text/css"
-			)
-			CUI.dom.append(head, linkElement)
+		customLinkElement = @__getCustomCSSElement()
+		if customLinkElement
+			CUI.dom.append(head, customLinkElement)
 
 		iframe.addEventListener("load", =>
 			iframeContent = iframe.contentDocument.documentElement
