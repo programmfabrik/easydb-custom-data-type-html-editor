@@ -9,5 +9,5 @@ custom.data.type.html-editor.editor.window.button.cancel,Abbrechen,Cancel,Cancel
 custom.data.type.html-editor.editor.window.cancel-confirmation,"Sind Sie sicher, dass Sie alle Änderungen verwerfen wollen?",Are you sure you want to discard all the changes?,Are you sure you want to discard all the changes?,¿Estás seguro de que quieres descartar todos los cambios?
 custom.data.type.html-editor.detail.window.open-button|text,Den Inhalt in einem neuen Fenster öffnen,Open the content in a new window,Open the content in a new window,Abrir el contenido en una nueva ventana
 custom.data.type.html-editor.detail.window.title,%(standard)s - %(fieldName)s,%(standard)s - %(fieldName)s,%(standard)s - %(fieldName)s,%(standard)s - %(fieldName)s
-server.config.name.system.html_editor,Custom CSS URL,Custom CSS URL,Custom CSS URL,Custom CSS URL
+server.config.name.system.html_editor,HTML Editor,HTML Editor,HTML Editor,HTML Editor
 server.config.parameter.system.html_editor.custom_css_url.label,Custom CSS URL,Custom CSS URL,Custom CSS URL,Custom CSS URL
