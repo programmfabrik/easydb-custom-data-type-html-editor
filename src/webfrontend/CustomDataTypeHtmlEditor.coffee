@@ -28,8 +28,11 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 	getFieldNamesForSuggest: ->
 		@__getFieldNames()
 
-	renderEditorInput: (data) ->
+	renderEditorInput: (data, topLevelData, opts) ->
 		initData = @__initData(data)
+
+		resultObject = opts.editor.object
+		standard = resultObject.getStandard(topLevelData)
 
 		customCSSURL = ez5.session.config.base.system.html_editor?.custom_css_url
 		editorToolbar = "undo redo | styleselect | bold italic forecolor backcolor | alignleft aligncenter alignright alignjustify | outdent indent"
@@ -86,7 +89,11 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 
 				features = "toolbar=no,status=no,menubar=no,scrollbars=yes,width=#{window.innerWidth},height=#{window.innerHeight}"
 				win = window.open("", "_blank", features)
-				win.document.title = $$("custom.data.type.html-editor.editor.window.title")
+
+				win.document.title = $$("custom.data.type.html-editor.editor.window.title",
+					standard: ez5.loca.getBestDatabaseValue(standard?["1"]?.text) or ""
+					fieldName: @ColumnSchema._name_localized
+				)
 
 				# Add easydb css
 				ez5CSSLinkElement = CUI.dom.element("link",
@@ -199,8 +206,11 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 		)
 		return linkElement
 
-	renderDetailOutput: (data, top_level_data, opts) ->
+	renderDetailOutput: (data, topLevelData, opts) ->
 		initData = @__initData(data)
+
+		resultObject = opts.detail.object
+		standard = resultObject.getStandard(topLevelData)
 
 		iframe = CUI.dom.$element("iframe", "ez5-custom-data-type-html-editor-iframe")
 
@@ -234,7 +244,10 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 
 				newInputElement = CUI.dom.element("input")
 				newInputElement.value = initData.value
-				win.document.title = $$("custom.data.type.html-editor.detail.window.title", top_level_data)
+				win.document.title = $$("custom.data.type.html-editor.detail.window.title",
+					standard: ez5.loca.getBestDatabaseValue(standard?["1"]?.text) or ""
+					fieldName: @ColumnSchema._name_localized
+				)
 				win.document.body.innerHTML = initData.value
 				win.addEventListener('beforeunload', ->
 					openButton.enable()
@@ -271,7 +284,7 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 
 	__initData: (data) ->
 		if not data[@name()]
-			initData = {}
+			initData = value: ""
 			data[@name()] = initData
 		else
 			initData = data[@name()]
