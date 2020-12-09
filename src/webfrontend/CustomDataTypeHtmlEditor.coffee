@@ -97,7 +97,7 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 
 				# Add easydb css
 				ez5CSSLinkElement = CUI.dom.element("link",
-					href: document.location.origin + ez5.cssLoader.getActiveCSS().url
+					href: ez5.getAbsoluteURL(ez5.cssLoader.getActiveCSS().url)
 					rel: "stylesheet"
 					type: "text/css"
 				)
@@ -106,7 +106,7 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 				# Add plugin css
 				plugin = ez5.pluginManager.getPlugin("custom-data-type-html-editor")
 				pluginCSSLinkElement = CUI.dom.element("link",
-					href: plugin.getBareBaseURL() + plugin.getWebfrontend().css
+					href: ez5.getAbsoluteURL(plugin.getBareBaseURL() + plugin.getWebfrontend().css)
 					rel: "stylesheet"
 					type: "text/css"
 				)
