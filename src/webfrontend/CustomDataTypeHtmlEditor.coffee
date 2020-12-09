@@ -124,11 +124,11 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 							right:
 								content: new CUI.Buttonbar
 									buttons:[
-										text: $$("custom.data.type.html-editor.editor.window.button.discard")
+										text: $$("custom.data.type.html-editor.editor.window.button.cancel")
 										onClick: =>
 											confirmationChoice = new CUI.ConfirmationChoice
 												text: $$("custom.data.type.html-editor.editor.window.cancel-confirmation")
-												title: $$("custom.data.type.html-editor.editor.window.button.discard")
+												title: $$("custom.data.type.html-editor.editor.window.button.cancel")
 												choices: [
 													text: $$("base.cancel")
 												,

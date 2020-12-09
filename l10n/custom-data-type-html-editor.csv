@@ -6,7 +6,6 @@ custom.data.type.html-editor.editor.window.alert.is-open,"Der HTML-Editor ist in
 custom.data.type.html-editor.editor.window.title,%(standard)s - %(fieldName)s,%(standard)s - %(fieldName)s,%(standard)s - %(fieldName)s,%(standard)s - %(fieldName)s
 custom.data.type.html-editor.editor.window.button.apply,Übernehmen,Apply,Apply,Aplicar
 custom.data.type.html-editor.editor.window.button.cancel,Abbrechen,Cancel,Cancel,Cancelar
-custom.data.type.html-editor.editor.window.button.discard,Änderungen verwerfen,Discard changes,Discard changes,Descartar cambios
 custom.data.type.html-editor.editor.window.cancel-confirmation,"Sind Sie sicher, dass Sie alle Änderungen verwerfen wollen?",Are you sure you want to discard all the changes?,Are you sure you want to discard all the changes?,¿Estás seguro de que quieres descartar todos los cambios?
 custom.data.type.html-editor.detail.window.open-button|text,Den Inhalt in einem neuen Fenster öffnen,Open the content in a new window,Open the content in a new window,Abrir el contenido en una nueva ventana
 custom.data.type.html-editor.detail.window.title,%(standard)s - %(fieldName)s,%(standard)s - %(fieldName)s,%(standard)s - %(fieldName)s,%(standard)s - %(fieldName)s
