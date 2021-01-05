@@ -17,6 +17,12 @@ plugin:
     lib: custom-data-type-html-editor-lib.js
     l10n: l10n/
 
+custom_types:
+  html_editor:
+    mapping:
+      value:
+        type: text
+
 base_config:
   - name: html_editor
     group: css

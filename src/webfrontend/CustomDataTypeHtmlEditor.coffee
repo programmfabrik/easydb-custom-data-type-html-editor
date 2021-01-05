@@ -28,11 +28,54 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 	getFieldNamesForSuggest: ->
 		@__getFieldNames()
 
+	getQueryFieldBadge: (data) =>
+		if data["#{@name()}:unset"]
+			value = $$("text.column.badge.without")
+		else
+			value = data[@name()]
+
+		badge =
+			name: @nameLocalized()
+			value: value
+		return badge
+
+	getSearchFilter: (data, key=@name()) ->
+		filter = super(data, key)
+		if filter
+			return filter
+
+		if CUI.util.isEmpty(data[key])
+			return
+
+		val = data[key]
+		[str, phrase] = Search.getPhrase(val)
+
+		switch data[key+":type"]
+			when "token", "fulltext", undefined
+				filter =
+					type: "match"
+					mode: data[key+":mode"]
+					fields: @getFieldNamesForSearch()
+					string: str
+					phrase: phrase
+			when "field"
+				filter =
+					type: "in"
+					fields: @getFieldNamesForSearch()
+					in: [ str ]
+		filter
+
+	__getFieldNames: ->
+		fieldNames = [
+			"#{@fullName()}.value"
+		]
+		return fieldNames
+
 	renderEditorInput: (data, topLevelData, opts) ->
 		initData = @__initData(data)
 
 		resultObject = opts.editor.object
-		standard = resultObject.getStandard(topLevelData)
+		standard = resultObject.getStandard()
 
 		customCSSURL = ez5.session.config.base.system.html_editor?.custom_css_url
 		editorToolbar = "undo redo | styleselect | bold italic forecolor backcolor | alignleft aligncenter alignright alignjustify | outdent indent"
@@ -209,8 +252,9 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 	renderDetailOutput: (data, topLevelData, opts) ->
 		initData = @__initData(data)
 
-		resultObject = opts.detail.object
-		standard = resultObject.getStandard(topLevelData)
+		bodyContent = CUI.dom.htmlToNodes(initData.value)
+		if opts.for_print
+			return bodyContent
 
 		iframe = CUI.dom.$element("iframe", "ez5-custom-data-type-html-editor-iframe")
 
@@ -222,7 +266,7 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 		CUI.dom.append(html, body)
 		CUI.dom.setStyle(body, "margin": "0px") # Remove the default margin of the HTML.
 
-		CUI.dom.append(body, CUI.dom.htmlToNodes(initData.value))
+		CUI.dom.append(body, bodyContent)
 		customLinkElement = @__getCustomCSSElement()
 		if customLinkElement
 			CUI.dom.append(head, customLinkElement)
@@ -231,6 +275,13 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 			iframeContent = iframe.contentDocument.documentElement
 			iframeContent.innerHTML = html.innerHTML
 		)
+
+		resultObject = opts.detail?.object
+		if not resultObject
+			resultObject = new ResultObject().setData(topLevelData)
+
+		standard = resultObject.getStandard()
+		standardTitle = ez5.loca.getBestDatabaseValue(standard?["1"]?.text) or ""
 
 		openButton = new LocaButton
 			loca_key: "custom.data.type.html-editor.detail.window.open-button"
@@ -245,7 +296,7 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 				newInputElement = CUI.dom.element("input")
 				newInputElement.value = initData.value
 				win.document.title = $$("custom.data.type.html-editor.detail.window.title",
-					standard: ez5.loca.getBestDatabaseValue(standard?["1"]?.text) or ""
+					standard: standardTitle
 					fieldName: @ColumnSchema._name_localized
 				)
 				win.document.body.innerHTML = initData.value
@@ -292,6 +343,12 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 
 	isEmpty: (data) ->
 		return CUI.util.isEmpty(data[@name()]?.value)
+
+	hasRenderForTable: ->
+		return false
+
+	hasRenderForSort: ->
+		return false
 
 CustomDataType.register(CustomDataTypeHtmlEditor)
 
