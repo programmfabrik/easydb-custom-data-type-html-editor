@@ -277,10 +277,10 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 		)
 
 		resultObject = opts.detail?.object
-		if not resultObject
+		if not resultObject and topLevelData # When it is inside a nested it has no topLevelData.
 			resultObject = new ResultObject().setData(topLevelData)
 
-		standard = resultObject.getStandard()
+		standard = resultObject?.getStandard()
 		standardTitle = ez5.loca.getBestDatabaseValue(standard?["1"]?.text) or ""
 
 		openButton = new LocaButton
