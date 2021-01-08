@@ -1,7 +1,7 @@
 class CustomDataTypeHtmlEditor extends CustomDataType
 
 	getCustomDataTypeName: ->
-		"custom:base.custom-data-type-html-editor"
+		"custom:base.custom-data-type-html-editor.html_editor"
 
 	getCustomDataTypeNameLocalized: ->
 		$$("custom.data.type.html-editor.name")
