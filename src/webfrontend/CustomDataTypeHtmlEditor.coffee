@@ -74,8 +74,8 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 	renderEditorInput: (data, topLevelData, opts) ->
 		initData = @__initData(data)
 
-		resultObject = opts.editor.object
-		standard = resultObject.getStandard()
+		resultObject = opts.editor?.object # The editor will not be present in the preview editor (datamodel -> masks)
+		standard = resultObject?.getStandard() or ""
 
 		customCSSURL = ez5.session.config.base.system.html_editor?.custom_css_url
 		editorToolbar = "undo redo | styleselect | bold italic forecolor backcolor | alignleft aligncenter alignright alignjustify | outdent indent"
