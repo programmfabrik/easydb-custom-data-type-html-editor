@@ -1,7 +1,7 @@
 plugin:
   name: custom-data-type-html-editor
   version: 1.0
-  url: https://github.com/programmfabrik/easydb-custom-data-type-html-editor
+  url: https://github.com/programmfabrik/custom-data-type-html-editor
   displayname:
     de-DE: HTML Editor
     en-US: HTML Editor
