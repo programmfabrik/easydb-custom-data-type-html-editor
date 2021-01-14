@@ -14,12 +14,15 @@ INSTALL_FILES = \
 	$(WEB)/l10n/it-IT.json \
 	$(CSS) \
 	$(JS) \
-	$(JS_LIB) \
+	$(THIRDPARTY_FILES) \
 	CustomDataTypeHtmlEditor.config.yml
 
 COFFEE_FILES = src/webfrontend/CustomDataTypeHtmlEditor.coffee
 
 SCSS_FILES = src/webfrontend/scss/custom-data-type-html-editor.scss
+
+THIRDPARTY_FILES = build/webfrontend/tinymce
+
 
 all: build
 
@@ -27,7 +30,11 @@ include easydb-library/tools/base-plugins.make
 
 build: code $(L10N)
 
-code: $(JS) css
+thirdparty_copy:
+	mkdir -p build/webfrontend
+	cp -r src/thirdparty/tinymce build/webfrontend
+
+code: $(JS) css thirdparty_copy
 
 clean: clean-base
 
