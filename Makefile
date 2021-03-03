@@ -18,7 +18,8 @@ INSTALL_FILES = \
 	$(THIRDPARTY_FILES) \
 	CustomDataTypeHtmlEditor.config.yml
 
-COFFEE_FILES = src/webfrontend/CustomDataTypeHtmlEditor.coffee
+COFFEE_FILES = src/webfrontend/CustomDataTypeHtmlEditor.coffee \
+	src/webfrontend/CustomDataTypeHtmlEditorCSVImporterDestinationField.coffee
 
 SCSS_FILES = src/webfrontend/scss/custom-data-type-html-editor.scss
 

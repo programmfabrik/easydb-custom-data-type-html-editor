@@ -320,18 +320,22 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 		if data._editorWindowOpen
 			throw new InvalidSaveDataException(text: $$("custom.data.type.html-editor.editor.window.alert.is-open"))
 
+		save_data[@name()] = CustomDataTypeHtmlEditor.buildData(data.value)
+		return save_data[@name()]
+
+	@buildData: (stringContent) ->
 		fulltext = []
-		for _, value of CUI.dom.htmlToNodes(data.value)
+		for _, value of CUI.dom.htmlToNodes(stringContent)
 			text = value.textContent
 			if not text or /^(\s|\n)$/.test(text)
 				continue
 			fulltext.push(value.textContent.trim())
 
-		save_data[@name()] =
-			value: data.value
+		data =
+			value: stringContent
 			_fulltext:
 				text: fulltext.join(" ")
-		return save_data[@name()]
+		return data
 
 	__initData: (data) ->
 		if not data[@name()]
@@ -349,6 +353,13 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 
 	hasRenderForSort: ->
 		return false
+
+	getCSVDestinationFields: (csvImporter) ->
+		opts =
+			csvImporter: csvImporter
+			field: @
+
+		[ new CustomDataTypeHtmlEditorCSVImporterDestinationField(opts) ]
 
 CustomDataType.register(CustomDataTypeHtmlEditor)
 
