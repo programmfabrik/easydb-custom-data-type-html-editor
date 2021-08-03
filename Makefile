@@ -16,7 +16,7 @@ INSTALL_FILES = \
 	$(CSS) \
 	$(JS) \
 	$(THIRDPARTY_FILES) \
-	CustomDataTypeHtmlEditor.config.yml
+	manifest.yml
 
 COFFEE_FILES = src/webfrontend/CustomDataTypeHtmlEditor.coffee \
 	src/webfrontend/CustomDataTypeHtmlEditorCSVImporterDestinationField.coffee
