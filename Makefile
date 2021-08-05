@@ -1,4 +1,5 @@
 PLUGIN_NAME = custom-data-type-html-editor
+PLUGIN_PATH = easydb-custom-data-type-html-editor
 
 EASYDB_LIB = easydb-library
 
