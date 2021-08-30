@@ -78,7 +78,7 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 		standard = resultObject?.getStandard() or ""
 
 		customCSSURL = ez5.session.config.base.system.html_editor?.custom_css_url
-		editorToolbar = "undo redo | styleselect | bold italic forecolor backcolor | alignleft aligncenter alignright alignjustify | outdent indent"
+		editorToolbar = "undo redo | image | styleselect | bold italic forecolor backcolor | alignleft aligncenter alignright alignjustify | outdent indent"
 		inputEditor = null
 
 		inputElement = CUI.dom.element("input")
@@ -94,6 +94,8 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 					toolbar_mode: 'sliding'
 					target: inputElement
 					content_css: customCSSURL
+					plugins: "image paste"
+					paste_data_images: true
 					setup: ((inputText) ->
 						CUI.dom.setStyle(inputElement, visibility: "")
 						inputEditor = inputText
