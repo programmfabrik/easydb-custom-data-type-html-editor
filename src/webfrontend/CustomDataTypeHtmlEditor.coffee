@@ -367,5 +367,6 @@ CustomDataType.register(CustomDataTypeHtmlEditor)
 
 ez5.session_ready ->
 	plugin = ez5.pluginManager.getPlugin("custom-data-type-html-editor")
-	url = ez5.getAbsoluteURL(plugin.getBareBaseURL() + "/tinymce/tinymce.min.js")
+	url = ez5.getAbsoluteURL(plugin.getBaseURL() + "/tinymce/tinymce.min.js")
 	CustomDataTypeHtmlEditor.loadLibraryPromise = CUI.loadScript(url)
+	return
