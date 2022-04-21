@@ -20,7 +20,7 @@ plugin:
 custom_types:
   html_editor:
     mapping:
-      value:
+      search_value:
         type: text
 
 base_config:

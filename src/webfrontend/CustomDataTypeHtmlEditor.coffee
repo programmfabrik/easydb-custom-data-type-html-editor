@@ -67,7 +67,7 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 
 	__getFieldNames: ->
 		fieldNames = [
-			"#{@fullName()}.value"
+			"#{@fullName()}.search_value"
 		]
 		return fieldNames
 
@@ -326,17 +326,20 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 		return save_data[@name()]
 
 	@buildData: (stringContent) ->
-		fulltext = []
+		searchValue = []
 		for _, value of CUI.dom.htmlToNodes(stringContent)
 			text = value.textContent
 			if not text or /^(\s|\n)$/.test(text)
 				continue
-			fulltext.push(value.textContent.trim())
+			searchValue.push(value.textContent.trim())
+
+		searchValue = searchValue.join(" ")
 
 		data =
 			value: stringContent
+			search_value: searchValue
 			_fulltext:
-				text: fulltext.join(" ")
+				text: searchValue
 		return data
 
 	__initData: (data) ->
