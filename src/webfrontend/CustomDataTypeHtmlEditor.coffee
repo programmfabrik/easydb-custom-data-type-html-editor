@@ -77,7 +77,7 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 		resultObject = opts.editor?.object # The editor will not be present in the preview editor (datamodel -> masks)
 		standard = resultObject?.getStandard() or ""
 
-		customCSSURL = ez5.session.config.base.system.html_editor?.custom_css_url
+		customCSSURL = ez5.session.getBaseConfig("plugin", "custom-data-type-html-editor").html_editor?.custom_css_url
 		editorToolbar = "undo redo | image | styleselect | bold italic forecolor backcolor | alignleft aligncenter alignright alignjustify | outdent indent"
 		inputEditor = null
 
@@ -241,7 +241,7 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 		return editorContent
 
 	__getCustomCSSElement: ->
-		customCssURL = ez5.session.config.base.system.html_editor?.custom_css_url
+		customCssURL = ez5.session.getBaseConfig("plugin", "custom-data-type-html-editor").html_editor?.custom_css_url
 		if not customCssURL
 			return
 		linkElement = CUI.dom.element("link",
