@@ -94,6 +94,7 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 					toolbar_mode: 'sliding'
 					target: inputElement
 					content_css: customCSSURL
+					content_style: "body { font-family: Source Sans Pro; }"
 					plugins: "image paste"
 					paste_data_images: true
 					setup: ((inputText) ->
