@@ -254,10 +254,11 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 
 	renderDetailOutput: (data, topLevelData, opts) ->
 		initData = @__initData(data)
-
 		bodyContent = CUI.dom.htmlToNodes(initData.value)
 		if opts.for_print
-			return bodyContent
+			div = CUI.dom.div()
+			CUI.dom.append(div, bodyContent)
+			return div
 
 		iframe = CUI.dom.$element("iframe", "ez5-custom-data-type-html-editor-iframe")
 
