@@ -15,6 +15,9 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 	supportsStandard: ->
 		return false
 
+	supportsPrinting: ->
+		true
+
 	renderSearchInput: (data, opts={}) ->
 		return new SearchToken(
 			column: @
