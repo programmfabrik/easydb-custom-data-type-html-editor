@@ -331,6 +331,9 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 		return save_data[@name()]
 
 	@buildData: (stringContent) ->
+		if ez5.version("6") and CUI.util.isEmpty(stringContent)
+			return null
+
 		searchValue = []
 		for _, value of CUI.dom.htmlToNodes(stringContent)
 			text = value.textContent
