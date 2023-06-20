@@ -319,15 +319,20 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 				content: openButton
 		return detailContent
 
-	getSaveData: (data, save_data) ->
-		data = data[@name()]
-		if CUI.util.isEmpty(data)
-			return save_data[@name()] = null
+	getTemplateValue: (data) ->
+		return data?._template?[@name()]
 
-		if data._editorWindowOpen
+	getSaveData: (data, save_data) ->
+		fieldData = data[@name()]
+		if CUI.util.isEmpty(fieldData) or CUI.util.isEmpty(fieldData.value)
+			fieldData = @getTemplateValue(data)
+			if CUI.util.isEmpty(fieldData)
+			 return save_data[@name()] = null
+
+		if fieldData._editorWindowOpen
 			throw new InvalidSaveDataException(text: $$("custom.data.type.html-editor.editor.window.alert.is-open"))
 
-		save_data[@name()] = CustomDataTypeHtmlEditor.buildData(data.value)
+		save_data[@name()] = CustomDataTypeHtmlEditor.buildData(fieldData.value)
 		return save_data[@name()]
 
 	@buildData: (stringContent) ->
