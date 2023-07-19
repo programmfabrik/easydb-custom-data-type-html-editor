@@ -3,8 +3,8 @@ plugin:
   version: 1.0
   url: https://github.com/programmfabrik/custom-data-type-html-editor
   displayname:
-    de-DE: HTML Editor
-    en-US: HTML Editor
+    en-US: "Custom Data Type: HTML Editor"
+    de-DE: "Custom Data Type: HTML Editor"
   info:
     de-DE: This custom data type allows having custom HTML content
     en-US: This custom data type allows having custom HTML content
