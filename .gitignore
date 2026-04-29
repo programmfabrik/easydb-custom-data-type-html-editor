@@ -1,6 +1,7 @@
 build-info.json
 build-stamp-*
 build
+build_fylr
 *~
 *.coffee.js
 *.spec.coffee

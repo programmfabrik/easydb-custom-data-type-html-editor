@@ -327,7 +327,7 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 		if CUI.util.isEmpty(fieldData) or CUI.util.isEmpty(fieldData.value)
 			fieldData = @getTemplateValue(data)
 			if CUI.util.isEmpty(fieldData)
-			 return save_data[@name()] = null
+				return save_data[@name()] = null
 
 		if fieldData._editorWindowOpen
 			throw new InvalidSaveDataException(text: $$("custom.data.type.html-editor.editor.window.alert.is-open"))
