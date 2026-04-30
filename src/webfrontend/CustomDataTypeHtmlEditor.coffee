@@ -117,9 +117,8 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 
 		placeholderLabel = new CUI.Label
 			text: $$("custom.data.type.html-editor.editor.editing-placeholder")
-			class: "ez5-custom-data-type-html-editor-fixed-height"
+			class: "ez5-custom-data-type-html-editor-description"
 			multiline: true
-			centered: true
 			appearance: "secondary"
 		CUI.dom.hideElement(placeholderLabel)
 
