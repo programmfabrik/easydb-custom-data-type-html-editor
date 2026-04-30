@@ -280,6 +280,19 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 		iframe.addEventListener("load", =>
 			iframeContent = iframe.contentDocument.documentElement
 			iframeContent.innerHTML = html.innerHTML
+
+			# Resize iframe to its actual content
+			# todo: something is still off with the height
+			# todo: can we make this dynamic, so the iframe changes when the outside changes (sidebar)
+			doc = iframe.contentDocument || iframe.contentWindow.document
+
+			# Pick the larger of body/document heights to be safe
+			height = Math.max(
+				doc.body.scrollHeight,
+				doc.documentElement.scrollHeight
+			)
+
+			iframe.style.height = height + 'px';
 		)
 
 		resultObject = opts.detail?.object
