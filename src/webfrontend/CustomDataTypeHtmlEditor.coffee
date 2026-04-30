@@ -305,6 +305,11 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 					standard: standardTitle
 					fieldName: @ColumnSchema._name_localized
 				)
+				
+				# add custom stylesheet to preview
+				if customLinkElement
+					win.document.head.appendChild(customLinkElement)
+
 				win.document.body.innerHTML = initData.value
 				win.addEventListener('beforeunload', ->
 					openButton.enable()
