@@ -80,8 +80,9 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 		resultObject = opts.editor?.object # The editor will not be present in the preview editor (datamodel -> masks)
 		standard = resultObject?.getStandard() or ""
 
+		baseCssURL = "build/webfrontend/base.css" # todo: what is the correct URL ???
 		customCSSURL = ez5.session.getBaseConfig("plugin", "custom-data-type-html-editor").html_editor?.custom_css_url
-		editorToolbar = "undo redo | image | styleselect | bold italic forecolor backcolor | alignleft aligncenter alignright alignjustify | outdent indent"
+		editorToolbar = "undo redo | image | styleselect | bold italic forecolor backcolor | alignleft aligncenter alignright alignjustify | outdent indent numlist bullist"
 		inputEditor = null
 
 		inputElement = CUI.dom.element("input")
@@ -96,9 +97,8 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 					toolbar: editorToolbar
 					toolbar_mode: 'sliding'
 					target: inputElement
-					content_css: customCSSURL
-					content_style: "body { font-family: Source Sans Pro; }"
-					plugins: "image paste"
+					content_css: [baseCssURL, customCSSURL]
+					plugins: "image paste lists"
 					paste_data_images: true
 					setup: ((inputText) ->
 						CUI.dom.setStyle(inputElement, visibility: "")
@@ -207,7 +207,8 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 						target: windowInputElement
 						toolbar_mode: 'sliding'
 						height: "100%"
-						content_css: customCSSURL
+						content_css: [baseCssURL, customCSSURL]
+						plugins: "image paste lists"
 						setup: ((inputText) ->
 							windowInputEditor = inputText
 						)
@@ -254,6 +255,17 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 		)
 		return linkElement
 
+	__getBaseCSSElement: ->
+		baseCssURL = "build/webfrontend/base.css" # todo: what is the correct URL ???
+		if not baseCssURL
+			return
+		linkElement = CUI.dom.element("link",
+			href: baseCssURL
+			rel: "stylesheet"
+			type: "text/css"
+		)
+		return linkElement		
+
 	renderDetailOutput: (data, topLevelData, opts) ->
 		initData = @__initData(data)
 		bodyContent = CUI.dom.htmlToNodes(initData.value)
@@ -273,6 +285,12 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 		CUI.dom.setStyle(body, "margin": "0px") # Remove the default margin of the HTML.
 
 		CUI.dom.append(body, bodyContent)
+		# append base style CSS
+		baseLinkElement = @__getBaseCSSElement()
+		if baseLinkElement
+			CUI.dom.append(head, baseLinkElement)
+
+		# append custom style CSS
 		customLinkElement = @__getCustomCSSElement()
 		if customLinkElement
 			CUI.dom.append(head, customLinkElement)
@@ -320,6 +338,9 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 				)
 				
 				# add custom stylesheet to preview
+				if baseLinkElement
+					win.document.head.appendChild(baseLinkElement)			
+				
 				if customLinkElement
 					win.document.head.appendChild(customLinkElement)
 

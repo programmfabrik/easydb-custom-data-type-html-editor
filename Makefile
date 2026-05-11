@@ -45,13 +45,17 @@ buildinfojson:
 	echo '  "builddate": "'$$builddate'"' >> build-info.json ;\
 	echo '}' >> build-info.json
 
-build: code $(L10N) buildinfojson
+build: code css $(L10N) buildinfojson
 
 thirdparty_copy:
 	mkdir -p build/webfrontend
 	cp -r src/thirdparty/tinymce build/webfrontend
 
 code: $(JS) css thirdparty_copy
+
+# generate base style css to include in the iframe (editor) and output (detail)
+css: src/webfrontend/scss/base.scss
+	sass src/webfrontend/scss/base.scss build/webfrontend/base.css
 
 clean: clean-base
 
