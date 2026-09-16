@@ -82,7 +82,7 @@ class CustomDataTypeHtmlEditor extends CustomDataType
 
 		baseCssURL = "build/webfrontend/base.css" # todo: what is the correct URL ???
 		customCSSURL = ez5.session.getBaseConfig("plugin", "custom-data-type-html-editor").html_editor?.custom_css_url
-		editorToolbar = "undo redo | image | styleselect | bold italic forecolor backcolor | alignleft aligncenter alignright alignjustify | outdent indent numlist bullist"
+		editorToolbar = "undo redo | link image | styleselect | bold italic forecolor backcolor | alignleft aligncenter alignright alignjustify | outdent indent numlist bullist"
 		inputEditor = null
 
 		inputElement = CUI.dom.element("input")
