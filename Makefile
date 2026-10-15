@@ -40,6 +40,9 @@ all: build
 
 include easydb-library/tools/base-plugins.make
 
+# DOMPurify goes into the same bundle, the plugin cannot rely on the frontend for it
+$(JS): src/thirdparty/purify.min.js
+
 buildinfojson:
 	repo=`git remote get-url origin | sed -e 's/\.git$$//' -e 's#.*[/\\]##'` ;\
 	rev=`git show --no-patch --format=%H` ;\
